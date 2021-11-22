@@ -1,0 +1,72 @@
+:root{
+  --field-rows: 3;
+  --field-cols: 3;
+}
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html{
+  font-family: sans-serif;
+}
+.game__wrapper{
+  width: 100%;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.game__title{
+  margin-top: 100px;
+  letter-spacing: 2px;
+  font-size: 50px;
+}
+.player__move{
+  margin-top: 40px;
+}
+.board__game{
+  margin-top: 50px;
+  width: 15vw;
+  height: 15vw;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.field{
+  border: 1px solid green;
+  width: calc(15vw / var(--field-rows));
+  height: calc(15vw / var(--field-cols));
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+
+/* .field:nth-of-type(1),
+.field:nth-of-type(2),
+.field:nth-of-type(3)
+{
+  border-top-color: white;
+}
+.field:nth-of-type(7),
+.field:nth-of-type(8),
+.field:nth-of-type(9)
+{
+  border-bottom-color: white;
+}
+.field:nth-of-type(1),
+.field:nth-of-type(4),
+.field:nth-of-type(7)
+{
+  border-left-color: white;
+}
+.field:nth-of-type(3),
+.field:nth-of-type(6),
+.field:nth-of-type(9)
+{
+  border-right-color: white;
+} */

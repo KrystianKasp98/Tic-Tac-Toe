@@ -1,0 +1,10 @@
+export const BOARD_GAME = '[data-board]';
+export const FIELD = '[data-field]';
+export const BOARD_ROWS = 3;
+export const BOARD_COLS = 3;
+export const VARIABLE_ROWS_CSS = '--field-rows';
+export const VARIABLE_COLS_CSS = '--field-cols';
+export const BACKGROUND_IMAGE_X_CSS = '../assets/X.svg';
+export const BACKGROUND_IMAGE_O_CSS = '../assets/O.svg';
+export const MARK_FIELD_X = 'X';
+export const MARK_FIELD_O = 'O';
