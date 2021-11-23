@@ -43,9 +43,54 @@ html{
   background-position: center;
   background-size: contain;
   background-repeat: no-repeat;
+  cursor: pointer;
 }
 
-
+/* modal */
+.modal{
+  width: 100%;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: rgba(0,0,0,0.6);
+  /* visibility: hidden; */
+}
+.modal__box{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: 40%;
+  height: 40%;
+  background-color: white;
+  border: 5px dashed black;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+}
+.modal__text{
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 50px;
+}
+.modal__button{
+  padding: 20px 50px;
+  font-size: 25px;
+  border: 4px dashed black;
+  cursor: pointer;
+  outline: none;
+}
+.modal__button:hover{
+  background-color: black;
+  color: #fff;
+  border-color: white;
+}
+/* js class */
+.hidden{
+  visibility: hidden;
+}
 /* .field:nth-of-type(1),
 .field:nth-of-type(2),
 .field:nth-of-type(3)

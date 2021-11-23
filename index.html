@@ -11,10 +11,17 @@
 <body>
   <div class="game__wrapper">
     <h1 class="game__title" >TIC TAC TOE</h1>
-     <h3 class="player__move">1 player's move</h3>
+     <h3 class="player__move" data-move>1 player's move</h3>
       <div class="board__game" data-board>
         
       </div>
+  </div>
+
+  <div class="modal hidden" data-modal>
+    <div class="modal__box">
+      <h1 class="modal__text" data-result>Draw</h1>
+      <div class="modal__button" data-close>Close</div>
+    </div>
   </div>
   <!-- script -->
   <script type='module' src="./scripts/Game.esm.js"></script>
