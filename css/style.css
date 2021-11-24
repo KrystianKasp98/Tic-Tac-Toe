@@ -71,7 +71,6 @@ html{
   justify-content: space-around;
 }
 .modal__text{
-  text-transform: uppercase;
   letter-spacing: 1px;
   font-size: 50px;
 }
