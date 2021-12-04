@@ -7,8 +7,9 @@ export const MODAL_WRAPPER_SELECTOR = '[data-modal]';
 export const MODAL_RESULT_TEXT_SELECTOR = '[data-result]';
 
 //game size
-export const BOARD_ROWS = 3;
-export const BOARD_COLS = 6;
+export const BOARD_ROWS = 9;
+export const BOARD_COLS = 5;
+export const MARKS_TO_WIN = 5;
 
 // css
 export const VARIABLE_ROWS_CSS = '--field-rows';

@@ -1,21 +1,25 @@
 import { UI } from './UI.esm.js';
 import { Field } from './Field.esm.js';
-import { BOARD_GAME_SELECTOR,FIELD_SELECTOR,MODAL_BUTTON_SELECTOR,MODAL_WRAPPER_SELECTOR, BOARD_ROWS,BOARD_COLS, VARIABLE_ROWS_CSS, VARIABLE_COLS_CSS, BACKGROUND_IMAGE_O_CSS, BACKGROUND_IMAGE_X_CSS, MARK_FIELD_O, MARK_FIELD_X, MOVE_SELECTOR, PLAYER_1_TURN_TEXT, PLAYER_2_TURN_TEXT, VISIBILITY_CLASS_CSS,MODAL_RESULT_TEXT_SELECTOR,DRAW_TEXT, BACKGROUND_IMAGE_EMPTY_CSS,PLAYER_1_WIN_TEXT,PLAYER_2_WIN_TEXT} from './Statements.esm.js';
+import { BOARD_GAME_SELECTOR,FIELD_SELECTOR,MODAL_BUTTON_SELECTOR,MODAL_WRAPPER_SELECTOR, BOARD_ROWS,BOARD_COLS, VARIABLE_ROWS_CSS, VARIABLE_COLS_CSS, BACKGROUND_IMAGE_O_CSS, BACKGROUND_IMAGE_X_CSS, MARK_FIELD_O, MARK_FIELD_X, MOVE_SELECTOR, PLAYER_1_TURN_TEXT, PLAYER_2_TURN_TEXT, VISIBILITY_CLASS_CSS,MODAL_RESULT_TEXT_SELECTOR,DRAW_TEXT, BACKGROUND_IMAGE_EMPTY_CSS,PLAYER_1_WIN_TEXT,PLAYER_2_WIN_TEXT, MARKS_TO_WIN} from './Statements.esm.js';
 
-export class Game extends UI{
+class Game extends UI{
   constructor() {
     //const properties
     super();
     this.board = this.getElement(BOARD_GAME_SELECTOR);
     this.button = this.getElement(MODAL_BUTTON_SELECTOR);
-    this.rows = BOARD_ROWS;//niestety za duzo bledow popelnilem ponizej
+    this.rows = BOARD_ROWS;
     this.cols = BOARD_COLS;
+    
+    this.marksToWin = MARKS_TO_WIN;//
+
 
     //properties to restart
     this.arrayOfFields = [];
     this.gameMoves = 0;
     this.endGameMoves = this.rows * this.cols;
     this.isGameEnded = false;
+
 
     this.addEventListeners();
   }
@@ -32,8 +36,8 @@ export class Game extends UI{
   startGame() {
     this.generateFields();
     this.renderGame();
-    console.log(this.arrayOfFields);
-    console.log(this.endGameMoves);
+    // console.log(this.arrayOfFields);
+    // console.log(this.endGameMoves);
   }
   resetGame() {
     this.gameMoves = 0;
@@ -45,23 +49,23 @@ export class Game extends UI{
     //reseting
     this.arrayOfFields = [];
     //when cols > rows
-    if (this.cols > this.rows) {
+    // if (this.cols > this.rows) {
       for (let col = 0; col < this.cols; col++) {
         this.arrayOfFields[col] = [];
         for (let row = 0; row < this.rows; row++) {
           this.arrayOfFields[col].push(new Field(row, col));
         }
       }
-    }
-    else {
-      //creating 2d array of fields
-      for (let row = 0; row < this.rows; row++) {
-        this.arrayOfFields[row] = [];
-        for (let col = 0; col < this.cols; col++) {
-          this.arrayOfFields[row].push(new Field(col, row));
-        }
-      }
-    }
+    // }
+    // else {
+    //   //creating 2d array of fields
+    //   for (let row = 0; row < this.rows; row++) {
+    //     this.arrayOfFields[row] = [];
+    //     for (let col = 0; col < this.cols; col++) {
+    //       this.arrayOfFields[row].push(new Field(col, row));
+    //     }
+    //   }
+    // }
     
   }
   renderBoard() {
@@ -84,6 +88,7 @@ export class Game extends UI{
   //reference to clicked field
   findField(e) {
     const target = e.target;
+    // console.log(target)
     const rowIndex = parseInt(target.getAttribute('data-y'), 10);
     const colIndex = parseInt(target.getAttribute('data-x'), 10);
     const field = this.arrayOfFields[rowIndex][colIndex];
@@ -99,101 +104,29 @@ export class Game extends UI{
   clickField = (e) => {
     if (this.isGameEnded)  return;
     const field = this.findField(e);
-    //protection against unexpected increments
+
+    //protection against overwrite
     if (field.checkIsFieldMarked())
     {
       console.log('field was marked');
       return;
     }
+
     //mark X
     if (this.gameMoves % 2 == 0) {
-      this.renderField(field,MARK_FIELD_X, BACKGROUND_IMAGE_X_CSS, PLAYER_2_TURN_TEXT);
+      this.renderField(field, MARK_FIELD_X, BACKGROUND_IMAGE_X_CSS, PLAYER_2_TURN_TEXT);
+      this.checkAllWaysToWin(field, this.arrayOfFields, MARK_FIELD_X);
     }
     //mark O
     else if (this.gameMoves % 2 == 1) {
       this.renderField(field, MARK_FIELD_O, BACKGROUND_IMAGE_O_CSS, PLAYER_1_TURN_TEXT);
+      this.checkAllWaysToWin(field, this.arrayOfFields, MARK_FIELD_O);
     }
     this.gameMoves++;
-    this.checkFieldsAround(field, this.arrayOfFields);
-    
     
     
     this.checkDraw();
   }
-  //checking around x-isMarkedAs(x/o)
-  checkFieldsAround(field,fields) {
-    const rowIndex = field.x;
-    const colIndex = field.y;
-    //poziom
-    let right_2 = rowIndex + 2 < this.rows ? fields[colIndex][rowIndex + 2] : false;
-    let right_1 = rowIndex + 1 < this.rows ? fields[colIndex][rowIndex + 1] : false;
-    let left_2 = rowIndex - 2 >= 0 ? fields[colIndex][rowIndex - 2] : false;
-    let left_1 = rowIndex - 1 >= 0 ? fields[colIndex][rowIndex - 1] : false;
-    //pion
-    let down_2 = colIndex + 2 < this.cols ? fields[colIndex + 2][rowIndex] : false;
-    let down_1 = colIndex + 1 < this.cols ? fields[colIndex + 1][rowIndex] : false;
-    let up_2 = colIndex - 2 >= 0 ? fields[colIndex - 2][rowIndex] : false;
-    let up_1 = colIndex - 1 >= 0 ? fields[colIndex - 1][rowIndex] : false;
-
-    //skos TL ->BR
-    let up_2_left_2 = colIndex - 2 >= 0 && rowIndex - 2 >= 0 ? fields[colIndex - 2][rowIndex - 2] : false;
-    let up_1_left_1 = colIndex - 1 >= 0 && rowIndex - 1 >= 0 ? fields[colIndex - 1][rowIndex - 1] : false;
-    let down_1_right_1 = colIndex + 1 < this.cols && rowIndex + 1 < this.rows ? fields[colIndex + 1][rowIndex + 1] : false;
-    let down_2_right_2 = colIndex + 2 < this.cols && rowIndex + 2 < this.rows < this.cols ? fields[colIndex + 2][rowIndex + 2] : false;
-
-    //skos BL -> TR
-    let down_2_left_2 = colIndex + 2 < this.cols && rowIndex - 2 >= 0 ? fields[colIndex + 2][rowIndex - 2] : false;
-    let down_1_left_1 = colIndex + 1 < this.cols && rowIndex - 1 >= 0 ? fields[colIndex + 1][rowIndex - 1] : false;
-    let up_1_right_1 = colIndex - 1 >= 0 && rowIndex + 1 < this.rows ? fields[colIndex - 1][rowIndex + 1] : false;
-    let up_2_right_2 = colIndex - 2 >= 0 && rowIndex + 2 < this.rows ? fields[colIndex - 2][rowIndex + 2] : false;
-
-    //down_1 down_2
-    if (down_2 !== false && down_1 !== false) this.checkResultXorO(field, down_1, down_2);
-    //down_1 up_1
-    if (up_1 !== false && down_1 !== false) this.checkResultXorO(field, down_1, up_1);
-    //up_1 up_2
-    if (up_1 !== false && up_2 !== false) this.checkResultXorO(field, up_1, up_2);
-  
-    //left 1 left 2
-    if (left_1 !== false && left_2 !== false) this.checkResultXorO(field, left_1, left_2);
-    //left 1 right 1
-    if (left_1 !== false && right_1 !== false) this.checkResultXorO(field, left_1, right_1);
-    //right 1 right 2
-    if (right_1 !== false && right_2 !== false) this.checkResultXorO(field, right_1, right_2);
-
-    //skos TL ->BR
-    if (up_2_left_2 !== false && up_1_left_1 !== false) this.checkResultXorO(field, up_2_left_2, up_1_left_1);
-    if (up_1_left_1 !== false && down_1_right_1 !== false) this.checkResultXorO(field, up_1_left_1, down_1_right_1);
-    if (down_1_right_1 !== false && down_2_right_2 !== false) this.checkResultXorO(field, down_1_right_1, down_2_right_2);
-
-    //skos BL -> TR
-    if (down_2_left_2 !== false && down_1_left_1 !== false) this.checkResultXorO(field, down_2_left_2, down_1_left_1);
-    if (down_1_left_1 !== false && up_1_right_1 !== false) this.checkResultXorO(field, down_1_left_1, up_1_right_1);
-    if (up_2_right_2 !== false && up_1_right_1 !== false) this.checkResultXorO(field, up_2_right_2, up_1_right_1);
-    
-  }
-  //rostrzyga czy sprawdzac x czy o i zwraca wynik
-  checkResultXorO(field_1, field_2, field_3) {
-    if (this.gameMoves % 2 == 1) {
-      if (field_1.isMarkedAsX && field_2.isMarkedAsX && field_3.isMarkedAsX) {
-        setTimeout(() => {
-          this.toogleModal(PLAYER_1_WIN_TEXT);
-          this.isGameEnded = true;
-          console.log(field_1.selector, field_2.selector, field_3.selector);
-        },1500)
-        
-      }
-    } else if (this.gameMoves % 2 == 0) {
-      if (field_1.isMarkedAsO && field_2.isMarkedAsO && field_3.isMarkedAsO) {
-        setTimeout(() => {
-          this.toogleModal(PLAYER_2_WIN_TEXT);
-          this.isGameEnded = true;
-          console.log(field_1.selector, field_2.selector, field_3.selector);
-        },1500) 
-      }
-    }
-  }
-
   //checking result
   checkDraw() {
     if (this.gameMoves === this.endGameMoves) {
@@ -208,7 +141,141 @@ export class Game extends UI{
       this.getElement(MODAL_WRAPPER_SELECTOR).classList.toggle(VISIBILITY_CLASS_CSS);
       this.updateText(MODAL_RESULT_TEXT_SELECTOR, text);
   }
+  //winning checker
+  checkAllWaysToWin(field, arrayOfFields, mark) {
+    //pion
+    this.checkWinHorizontal(field, arrayOfFields, mark);
+    //poziom
+    this.checkWinVertical(field, arrayOfFields, mark);
+    //skos1
+    this.checkWinTopLeftToBottomRight(field, arrayOfFields, mark);
+    //skos 2
+    this.checkWinBottomLeftToTopRight(field, arrayOfFields, mark);
+  }
+
+  checkWinHorizontal(field,fields,fieldType) {
+    const rowIndex = field.x;
+    const colIndex = field.y;
+    const plusRange = this.marksToWin - 1;
+    const minusRange = -this.marksToWin + 1;
+
+    const arrayOfFieldsToCheck = [];//tablica do komorek
+
+    //tworzenie tablicy z pasujacych komorek
+    for (let row = plusRange; row >= minusRange; row--){
+      const fieldRowIndex = rowIndex + row;
+      if (fieldRowIndex >= 0 && fieldRowIndex < this.rows) {
+        arrayOfFieldsToCheck.push(fields[colIndex][fieldRowIndex])
+      }
+    }
+    this.arrayChecker(arrayOfFieldsToCheck, fieldType)
+
+  }
+  checkWinVertical(field, fields, fieldType) {
+    const rowIndex = field.x;
+    const colIndex = field.y;
+    const plusRange = this.marksToWin - 1;
+    const minusRange = -this.marksToWin + 1;
+
+    const arrayOfFieldsToCheck = []; //tablica do komorek
+
+    //tworzenie tablicy z pasujacych komorek
+    for (let col = plusRange; col >= minusRange; col--) {
+      const fieldcolIndex = colIndex + col;
+      if (fieldcolIndex >= 0 && fieldcolIndex < this.cols) {
+        arrayOfFieldsToCheck.push(fields[fieldcolIndex][rowIndex])
+      }
+    }
+    this.arrayChecker(arrayOfFieldsToCheck, fieldType)
+
+  }
+  checkWinTopLeftToBottomRight(field, fields, fieldType) {
+    const rowIndex = field.x;
+    const colIndex = field.y;
+    const plusRange = this.marksToWin - 1;
+    const minusRange = -this.marksToWin + 1;
+
+    const arrayOfFieldsToCheck = []; //tablica do komorek
+
+    for (let index = plusRange; index >= minusRange; index--) {
+      const fieldcolIndex = colIndex + index;
+      const fieldrowIndex = rowIndex + index;
+      if (fieldcolIndex >= 0 && fieldcolIndex < this.cols && fieldrowIndex >= 0 && fieldrowIndex < this.rows) {
+        arrayOfFieldsToCheck.push(fields[fieldcolIndex][fieldrowIndex])
+      }
+    }
+
+    this.arrayChecker(arrayOfFieldsToCheck, fieldType)
+
+  }
+  checkWinBottomLeftToTopRight(field, fields, fieldType) {
+    const rowIndex = field.x;
+    const colIndex = field.y;
+    const plusRange = this.marksToWin - 1;
+    const minusRange = -this.marksToWin + 1;
+
+    const arrayOfFieldsToCheck = []; //tablica do komorek
+
+    for (let index = plusRange; index >= minusRange; index--) {
+      const fieldcolIndex = colIndex - index;
+      const fieldrowIndex = rowIndex + index;
+      if (fieldcolIndex >= 0 && fieldcolIndex < this.cols && fieldrowIndex >= 0 && fieldrowIndex < this.rows) {
+        arrayOfFieldsToCheck.push(fields[fieldcolIndex][fieldrowIndex])
+      }
+    }
+
+    this.arrayChecker(arrayOfFieldsToCheck, fieldType)
+  }
+
+
+  //checking array
+  arrayChecker(arrayOfFieldsToCheck, fieldType) {
+    let firstIndex = 0;
+    let lastCheck = arrayOfFieldsToCheck.length;
+
+    while (lastCheck >= firstIndex + MARKS_TO_WIN) {
+      let scores = 0;
+      for (let actuallIndex = firstIndex; actuallIndex < firstIndex + MARKS_TO_WIN; actuallIndex++) {
+        const fieldActual = arrayOfFieldsToCheck[actuallIndex];
+        // console.log(fieldActual);
+
+        //for X
+        if (fieldType === MARK_FIELD_X) {
+          if (fieldActual.isMarkedAsX) {
+            scores++;
+          }
+          //winning statement for X
+          if (actuallIndex == firstIndex + MARKS_TO_WIN - 1 && scores === MARKS_TO_WIN) {
+            console.log('wygraly iksy');
+            setTimeout(() => {
+              this.toogleModal(PLAYER_1_WIN_TEXT);
+              this.isGameEnded = true;
+            }, 1500)
+          }
+        }
+
+        //for O
+        if (fieldType === MARK_FIELD_O) {
+          if (fieldActual.isMarkedAsO) {
+            scores++;
+          }
+          //winning STATEMENT FOR O
+          if (actuallIndex == firstIndex + MARKS_TO_WIN - 1 && scores === MARKS_TO_WIN) {
+            console.log('wygraly kolka');
+            setTimeout(() => {
+              this.toogleModal(PLAYER_2_WIN_TEXT);
+              this.isGameEnded = true;
+            }, 1500)
+          }
+        }
+
+      }
+      firstIndex++;
+      console.log(scores)
+    }
+  }
+
 }
 
-const game = new Game();
+export const game = new Game();
 game.startGame();
